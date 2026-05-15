@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Commander v4.0</title>
+    <style>
+        :root { --bg: #09090b; --accent: #8b5cf6; --text: #fafafa; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .ai-sphere { width: 150px; height: 150px; background: var(--accent); border-radius: 50%; filter: blur(40px); opacity: 0.5; position: absolute; animation: pulse 2s infinite; }
+        .content { position: relative; z-index: 10; text-align: center; width: 80%; }
+        .transcript { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin: 20px 0; min-height: 50px; border: 1px solid rgba(255,255,255,0.1); }
+        .command-list { font-size: 14px; color: #a1a1aa; }
+        button { background: var(--accent); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--accent); }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.8; } 100% { transform: scale(1); opacity: 0.5; } }
+    </style>
+</head>
+<body>
+
+    <div class="ai-sphere" id="sphere"></div>
+
+    <div class="content">
+        <h1>🎙️ AI COMMANDER</h1>
+        <p>Ovozli buyruq bering (O'zbek yoki Ingliz tilida)</p>
+        
+        <div class="transcript" id="transcript">Gapirishni boshlash uchun tugmani bosing...</div>
+        
+        <button onclick="startListening()">ESHITISHNI BOSHLASH</button>
+
+        <div class="command-list">
+            <p>💡 Buyruqlar: "Google'dan qidir [so'z]", "YouTube'ni och", "Fonni o'zgartir", "Vaqtni ayt"</p>
+        </div>
+    </div>
+
+    <script>
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'uz-UZ'; // O'zbek tilini tanlash
+        recognition.interimResults = false;
+
+        function startListening() {
+            recognition.start();
+            document.getElementById('transcript').innerText = "Eshityapman... 👂";
+            document.getElementById('sphere').style.background = "#10b981";
+        }
+
+        recognition.onresult = (event) => {
+            const command = event.results[0][0].transcript.toLowerCase();
+            document.getElementById('transcript').innerText = "Siz dedingiz: " + command;
+            executeCommand(command);
+        };
+
+        function executeCommand(cmd) {
+            const sphere = document.getElementById('sphere');
+            
+            if (cmd.includes("google'dan qidir") || cmd.includes("qidir")) {
+                const query = cmd.replace("google'dan qidir", "").replace("qidir", "");
+                window.open(`https://www.google.com/search?q=${query}`, '_blank');
+            } 
+            else if (cmd.includes("youtube")) {
+                window.open("https://www.youtube.com", '_blank');
+            }
+            else if (cmd.includes("fon") || cmd.includes("rang")) {
+                const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                document.body.style.backgroundColor = randomColor;
+                sphere.style.background = randomColor;
+            }
+            else if (cmd.includes("vaqt")) {
+                const now = new Date().toLocaleTimeString();
+                const uttr = new SpeechSynthesisUtterance("Hozirgi vaqt: " + now);
+                window.speechSynthesis.speak(uttr);
+                alert("Hozirgi vaqt: " + now);
+            }
+            else {
+                sphere.style.background = "#8b5cf6";
+            }
+        }
+
+        recognition.onerror = () => {
+            document.getElementById('transcript').innerText = "Xatolik yuz berdi. Qaytadan urinib ko'ring.";
+            document.getElementById('sphere').style.background = "#ef4444";
+        };
+    </script>
+</body>
+</html>
